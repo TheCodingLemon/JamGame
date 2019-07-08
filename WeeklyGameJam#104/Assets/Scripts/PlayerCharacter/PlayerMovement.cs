@@ -38,7 +38,7 @@ public class PlayerMovement : MonoBehaviour
     void ApplyMovement()
     {
         movementVector.x = Mathf.SmoothDamp(movementVector.x, input.x, ref movementChangeVel, movementSmoothness); //Smooth out the movement by movementSmoothness
-        if (Mathf.Abs(movementVector.x) <= 0.01f) //Cut vector if too low
+        if (Mathf.Abs(movementVector.x) <= 0.001f) //Cut vector if too low
             movementVector.x = 0f;
 
         if (cc.isGrounded)

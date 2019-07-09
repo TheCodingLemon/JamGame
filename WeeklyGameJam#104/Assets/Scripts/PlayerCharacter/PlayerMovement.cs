@@ -6,6 +6,9 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
 
+    public Animator anim;
+    public Transform playerBody;
+
     public float movementSmoothness = 5f;
     public float movementSpeed = 1f;
     public float jumpForce = 1;
@@ -27,6 +30,7 @@ public class PlayerMovement : MonoBehaviour
     {
         HandleInput(); 
         ApplyMovement();
+        HandleAnimations();
     }
 
     void HandleInput()
@@ -43,7 +47,15 @@ public class PlayerMovement : MonoBehaviour
 
         if (cc.isGrounded)
         {
-            movementVector.y = Input.GetAxisRaw("Jump") * jumpForce; //Do the jump
+            if (Input.GetAxisRaw("Jump") > 0)
+            {
+                anim.SetTrigger("Jump");
+                movementVector.y = Input.GetAxisRaw("Jump") * jumpForce; //Do the jump
+            }
+            else
+            {
+                movementVector.y = 0;
+            }
         }
         else
         {
@@ -58,7 +70,22 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    void HandleAnimations()
+    {
+        if (anim)
+        {
+            anim.SetBool("Grounded", cc.isGrounded || movementVector.y == 0);
+            anim.SetFloat("Speed", Mathf.Abs(movementVector.x));
+            anim.SetFloat("VerticalVel", movementVector.y);
+        }
 
+        if(Mathf.Abs(movementVector.x) > 0) //A dirty way to handle rotations. Will move to a separate function later on
+        {
+            Quaternion targetRotation = movementVector.x > 0 ? Quaternion.Euler(0, 90, 0) : Quaternion.Euler(0, -90, 0);
+
+            playerBody.rotation = Quaternion.Slerp(playerBody.rotation, targetRotation, 15f * Time.deltaTime);
+        }
+    }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
